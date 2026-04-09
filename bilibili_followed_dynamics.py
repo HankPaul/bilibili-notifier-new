@@ -681,10 +681,14 @@ def job():
     except:
         pass
 
+interval_seconds = CONFIG.get("check_interval_seconds", 30)
+print(f"⏰ 检查间隔: {interval_seconds} 秒")
+schedule.every(interval_seconds).seconds.do(job)
 
-interval_minutes = CONFIG.get("check_interval_minutes", 1)
-print(f"⏰ 检查间隔: {interval_minutes} 分钟")
-schedule.every(interval_minutes).minutes.do(job)
+
+# interval_minutes = CONFIG.get("check_interval_minutes", 1)
+# print(f"⏰ 检查间隔: {interval_minutes} 分钟")
+# schedule.every(interval_minutes).minutes.do(job)
 
 while True:
     try:
