@@ -155,7 +155,7 @@ def send_feishu_self_comment(comment_info: dict):
         "msg_type": "interactive",
         "card": {
             "header": {
-                "title": {"tag": "plain_text", "content": "💬 UP主自己评论啦！"},
+                "title": {"tag": "plain_text", "content": f"💬 {comment_info['name']}发表评论"},
                 "template": "green"
             },
             "elements": elements
@@ -470,7 +470,8 @@ class session_cookie:
                                 'name': up_name,
                                 'comment_time': comment_time,
                                 'type_text': '视频评论',
-                                'content': content[:150] + ("..." if len(content) > 150 else ""),
+                                # 'content': content[:150] + ("..." if len(content) > 150 else ""),
+                                'content': content,
                                 'jump_url': f'https://www.bilibili.com/video/{bvid}#reply{rpid}'
                             }
                             send_feishu_self_comment(info)
@@ -517,7 +518,8 @@ class session_cookie:
                                 'name': up_name,
                                 'comment_time': comment_time,
                                 'type_text': '动态评论',
-                                'content': content[:150] + ("..." if len(content) > 150 else ""),
+                                # 'content': content[:150] + ("..." if len(content) > 150 else ""),
+                                'content': content,
                                 'jump_url': f'https://t.bilibili.com/{dynamic_id}#reply{rpid}'
                             }
                             send_feishu_self_comment(info)
