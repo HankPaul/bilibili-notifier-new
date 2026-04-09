@@ -70,7 +70,7 @@ OLD_SELF_COMMENT_FILE = DATA_DIR / 'old_self_comments.json'
 
 FOLLOWED_DYNAMIC_TYPES = CONFIG.get("followed_dynamic_types", ["DYNAMIC_TYPE_AV", "DYNAMIC_TYPE_DRAW"])
 
-session = requests.Session()
+# session = requests.Session()
 
 
 def saveNprint_qr_image(text: str, path) -> None:
@@ -364,6 +364,7 @@ class session_cookie:
         gen_url = 'https://passport.bilibili.com/x/passport-login/web/qrcode/generate'
         resp = self.sess.get(gen_url).json()
         login_url = re.search(r'(https?://[^\s<]+)', resp['data']['url']).group(0)
+        print(login_url)
         saveNprint_qr_image(login_url, SAVE_FILE)
 
     def save_cookies(self):
@@ -380,7 +381,12 @@ class session_cookie:
         resp = self.sess.get(gen_url).json()
         self.qrcode_key = resp['data']['qrcode_key']
         login_url = re.search(r'(https?://[^\s<]+)', resp['data']['url']).group(0)
-        self._notify_and_save_qr(login_url)
+        # print("二维码URL：", login_url)
+        # print("qrcode_key：", self.qrcode_key)
+        # self._notify_and_save_qr(login_url)
+        time.sleep(1)
+        send_feishu_card_error(login_url)
+        saveNprint_qr_image(login_url, SAVE_FILE)
 
     def ensure_login(self):
         if self.cookie_valid():
@@ -397,6 +403,7 @@ class session_cookie:
             try:
                 poll_resp = self.sess.get(poll_url, params={'qrcode_key': self.qrcode_key}, timeout=10).json()
                 code = poll_resp['data']['code']
+                print(code)
                 if code == 0:
                     print("🎉 扫码成功")
                     self.save_cookies()
