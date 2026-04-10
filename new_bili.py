@@ -495,7 +495,7 @@ class session_cookie:
                             info = {
                                 'name': up_name,
                                 'comment_time': comment_time,
-                                'type_text': '视频评论',
+                                'type_text': '视频置顶评论',
                                 # 'content': content[:150] + ("..." if len(content) > 150 else ""),
                                 'content': content,
                                 'jump_url': f'https://www.bilibili.com/video/{bvid}#reply{rpid}'
@@ -569,8 +569,7 @@ class session_cookie:
                             info = {
                                 'name': up_name,
                                 'comment_time': comment_time,
-                                'type_text': '动态评论',
-                                # 'content': content[:150] + ("..." if len(content) > 150 else ""),
+                                'type_text': '动态置顶评论',
                                 'content': content,
                                 'jump_url': f'https://t.bilibili.com/{dynamic_id}#reply{rpid}'
                             }
@@ -637,6 +636,7 @@ class session_cookie:
                             'type': 'text', 'name': author_name, 'pub_ts': pub_ts,
                             'title': text[:100] + '...' if len(text) > 100 else text,
                             'dynamic_id': item.get('id_str', ''), 'mid': author_mid
+                            # 'dynamic_id': item.get('basic', {}).get('rid_str', ''), 'mid': author_mid
                         })
                     elif dynamic_type == 'DYNAMIC_TYPE_FORWARD':
                         orig = item.get('orig', {})
@@ -708,12 +708,12 @@ class session_cookie:
 
             # 自评论检测
             for d in dynamics:
+                print(dynamics)
                 try:
                     if d['type'] == 'video':
                         self.check_video_self_comment(d['bvid'], d['mid'], d['name'])
-                    else:
-                        if d.get('dynamic_id'):
-                            self.check_dynamic_self_comment(d['dynamic_id'], d['mid'], d['name'])
+                    elif d['type'] == 'text':
+                        self.check_dynamic_self_comment(d['dynamic_id'], d['mid'], d['name'])
                 except:
                     continue
 
