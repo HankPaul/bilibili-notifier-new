@@ -479,8 +479,8 @@ class session_cookie:
                 except:
                     continue
             #置顶评论
-            top_replies = resp.get('data', {}).get('replies', [])
-            for top_reply in replies:
+            top_replies = resp.get('data', {}).get('top_replies', [])
+            for top_reply in top_replies:
                 try:
                     rpid = top_reply.get('rpid')
                     comment_mid = str(top_reply.get('member', {}).get('mid', ''))
@@ -489,7 +489,7 @@ class session_cookie:
                     comment_time = datetime.fromtimestamp(ctime).strftime('%Y-%m-%d %H:%M:%S')
 
                     if comment_mid == up_mid:
-                        comment_id = f"v_{bvid}_{rpid}"
+                        comment_id = f"vtop_{bvid}_{rpid}"
                         if comment_id not in self.old_self_comments:
                             self.old_self_comments.add(comment_id)
                             info = {
@@ -563,7 +563,7 @@ class session_cookie:
                     comment_time = datetime.fromtimestamp(ctime).strftime('%Y-%m-%d %H:%M:%S')
 
                     if comment_mid == up_mid:
-                        comment_id = f"d_{dynamic_id}_{rpid}"
+                        comment_id = f"dtop_{dynamic_id}_{rpid}"
                         if comment_id not in self.old_self_comments:
                             self.old_self_comments.add(comment_id)
                             info = {
