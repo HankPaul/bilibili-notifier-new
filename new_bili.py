@@ -438,7 +438,7 @@ class session_cookie:
         try:
             url = (
                 f"https://api.bilibili.com/x/v2/reply/main?"
-                f"mode=3&type=1&oid={bvid}&next=0&plat=1&web_location=1315875"
+                f"mode=2&type=1&oid={bvid}&next=0&plat=1&web_location=1315875"
             )
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
