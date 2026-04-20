@@ -5,5 +5,5 @@
   ],
   "feishu_webhook": "https://open.feishu.cn/open-apis/bot/v2/hook/9f4fab53-c945-4b16-a105-c91b8eefc51e",
   "check_interval_seconds": 30,
-   "followed_mids": ["1671203508", "3706939292781021", "3690992372812774", "87345453"]
+   "followed_mids": ["1671203508", "3706939292781021", "3690992372812774", "87345453", "3706945254983823"]
 }
