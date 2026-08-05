@@ -584,6 +584,7 @@ class session_cookie:
     def get_followed_dynamic(self):
         try:
             Url_followed_dynamics = 'https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/all?type=all&page=1&features=itemOpusStyle'
+
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'Accept': 'application/json',
@@ -612,7 +613,7 @@ class session_cookie:
 
                     author_name = item['modules']['module_author']['name']
                     author_mid = str(item['modules']['module_author']['mid'])
-                    pub_ts = datetime.fromtimestamp(item['modules']['module_author']['pub_ts']).strftime(
+                    pub_ts = datetime.fromtimestamp(int(item['modules']['module_author']['pub_ts'])).strftime(
                         '%Y-%m-%d %H:%M:%S')
 
                     if followed_mids and author_mid not in followed_mids:
@@ -638,6 +639,7 @@ class session_cookie:
                             'dynamic_id': item.get('id_str', ''), 'mid': author_mid
                             # 'dynamic_id': item.get('basic', {}).get('rid_str', ''), 'mid': author_mid
                         })
+                        print("dynamics:{}".format(dynamics))
                     elif dynamic_type == 'DYNAMIC_TYPE_FORWARD':
                         orig = item.get('orig', {})
                         if not orig:
@@ -735,7 +737,7 @@ def job():
     except:
         pass
 
-interval_seconds = CONFIG.get("check_interval_seconds", 30)
+interval_seconds = CONFIG.get("check_interval_seconds", 15)
 print(f"⏰ 检查间隔: {interval_seconds} 秒")
 schedule.every(interval_seconds).seconds.do(job)
 
