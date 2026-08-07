@@ -452,7 +452,7 @@ class session_cookie:
             resp = response.json()
             if resp.get('code') != 0:
                 return
-
+            #一般评论
             replies = resp.get('data', {}).get('replies', [])
             for reply in replies:
                 try:
@@ -470,6 +470,32 @@ class session_cookie:
                                 'name': up_name,
                                 'comment_time': comment_time,
                                 'type_text': '视频评论',
+                                # 'content': content[:150] + ("..." if len(content) > 150 else ""),
+                                'content': content,
+                                'jump_url': f'https://www.bilibili.com/video/{bvid}#reply{rpid}'
+                            }
+                            send_feishu_self_comment(info)
+                            print(f"💬 视频自评论: {up_name} | {content[:30]}...")
+                except:
+                    continue
+            #置顶评论
+            top_replies = resp.get('data', {}).get('top_replies', [])
+            for top_reply in top_replies:
+                try:
+                    rpid = top_reply.get('rpid')
+                    comment_mid = str(top_reply.get('member', {}).get('mid', ''))
+                    content = top_reply.get('content', {}).get('message', '')
+                    ctime = top_reply.get('ctime', 0)
+                    comment_time = datetime.fromtimestamp(ctime).strftime('%Y-%m-%d %H:%M:%S')
+
+                    if comment_mid == up_mid:
+                        comment_id = f"vtop_{bvid}_{rpid}"
+                        if comment_id not in self.old_self_comments:
+                            self.old_self_comments.add(comment_id)
+                            info = {
+                                'name': up_name,
+                                'comment_time': comment_time,
+                                'type_text': '视频置顶评论',
                                 # 'content': content[:150] + ("..." if len(content) > 150 else ""),
                                 'content': content,
                                 'jump_url': f'https://www.bilibili.com/video/{bvid}#reply{rpid}'
@@ -500,7 +526,7 @@ class session_cookie:
             resp = response.json()
             if resp.get('code') != 0:
                 return
-
+            # 一般评论
             replies = resp.get('data', {}).get('replies', [])
             for reply in replies:
                 try:
@@ -526,6 +552,31 @@ class session_cookie:
                             print(f"💬 动态自评论: {up_name} | {content[:30]}...")
                 except:
                     continue
+            #置顶评论
+            top_replies = resp.get('data', {}).get('top_replies', [])
+            for top_reply in top_replies:
+                try:
+                    rpid = top_reply.get('rpid')
+                    comment_mid = str(top_reply.get('member', {}).get('mid', ''))
+                    content = top_reply.get('content', {}).get('message', '')
+                    ctime = top_reply.get('ctime', 0)
+                    comment_time = datetime.fromtimestamp(ctime).strftime('%Y-%m-%d %H:%M:%S')
+
+                    if comment_mid == up_mid:
+                        comment_id = f"dtop_{dynamic_id}_{rpid}"
+                        if comment_id not in self.old_self_comments:
+                            self.old_self_comments.add(comment_id)
+                            info = {
+                                'name': up_name,
+                                'comment_time': comment_time,
+                                'type_text': '动态置顶评论',
+                                'content': content,
+                                'jump_url': f'https://t.bilibili.com/{dynamic_id}#reply{rpid}'
+                            }
+                            send_feishu_self_comment(info)
+                            print(f"💬 动态自评论: {up_name} | {content[:30]}...")
+                except:
+                    continue
         except:
             return
     # ========================================================================
@@ -533,6 +584,7 @@ class session_cookie:
     def get_followed_dynamic(self):
         try:
             Url_followed_dynamics = 'https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/all?type=all&page=1&features=itemOpusStyle'
+
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                 'Accept': 'application/json',
@@ -561,7 +613,7 @@ class session_cookie:
 
                     author_name = item['modules']['module_author']['name']
                     author_mid = str(item['modules']['module_author']['mid'])
-                    pub_ts = datetime.fromtimestamp(item['modules']['module_author']['pub_ts']).strftime(
+                    pub_ts = datetime.fromtimestamp(int(item['modules']['module_author']['pub_ts'])).strftime(
                         '%Y-%m-%d %H:%M:%S')
 
                     if followed_mids and author_mid not in followed_mids:
@@ -584,8 +636,10 @@ class session_cookie:
                         dynamics.append({
                             'type': 'text', 'name': author_name, 'pub_ts': pub_ts,
                             'title': text[:100] + '...' if len(text) > 100 else text,
-                            'dynamic_id': item.get('id_str', ''), 'mid': author_mid
+                            # 'dynamic_id': item.get('id_str', ''), 'mid': author_mid
+                            'dynamic_id': item.get('basic', {}).get('rid_str', ''), 'mid': author_mid
                         })
+                        print("dynamics:{}".format(dynamics))
                     elif dynamic_type == 'DYNAMIC_TYPE_FORWARD':
                         orig = item.get('orig', {})
                         if not orig:
@@ -602,7 +656,8 @@ class session_cookie:
                                     'title': arc['title'], 'forward_comment': forward_text[:100] + '...' if len(
                                         forward_text) > 100 else forward_text,
                                     'orig_author': orig_name, 'bvid': arc['bvid'],
-                                    'dynamic_id': item.get('id_str', ''), 'mid': author_mid
+                                    # 'dynamic_id': item.get('id_str', ''), 'mid': author_mid
+                                    'dynamic_id': item.get('basic', {}).get('rid_str', ''), 'mid': author_mid
                                 })
                         elif orig_type == 'DYNAMIC_TYPE_DRAW':
                             orig_text = orig.get('modules', {}).get('module_dynamic', {}).get('major', {}).get('opus',
@@ -615,7 +670,8 @@ class session_cookie:
                                     'forward_comment': forward_text[:100] + '...' if len(
                                         forward_text) > 100 else forward_text,
                                     'orig_author': orig_name,
-                                    'dynamic_id': item.get('id_str', ''), 'mid': author_mid
+                                    # 'dynamic_id': item.get('id_str', ''), 'mid': author_mid
+                                    'dynamic_id': item.get('basic', {}).get('rid_str', ''), 'mid': author_mid
                                 })
                 except:
                     continue
@@ -656,12 +712,12 @@ class session_cookie:
 
             # 自评论检测
             for d in dynamics:
+                print(dynamics)
                 try:
                     if d['type'] == 'video':
                         self.check_video_self_comment(d['bvid'], d['mid'], d['name'])
-                    else:
-                        if d.get('dynamic_id'):
-                            self.check_dynamic_self_comment(d['dynamic_id'], d['mid'], d['name'])
+                    elif d['type'] == 'text':
+                        self.check_dynamic_self_comment(d['dynamic_id'], d['mid'], d['name'])
                 except:
                     continue
 
@@ -683,7 +739,7 @@ def job():
     except:
         pass
 
-interval_seconds = CONFIG.get("check_interval_seconds", 30)
+interval_seconds = CONFIG.get("check_interval_seconds", 15)
 print(f"⏰ 检查间隔: {interval_seconds} 秒")
 schedule.every(interval_seconds).seconds.do(job)
 
