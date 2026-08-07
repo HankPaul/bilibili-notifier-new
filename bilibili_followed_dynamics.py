@@ -155,7 +155,7 @@ def send_feishu_self_comment(comment_info: dict):
         "msg_type": "interactive",
         "card": {
             "header": {
-                "title": {"tag": "plain_text", "content": f"💬 {comment_info['name']}发表评论"},
+                "title": {"tag": "plain_text", "content": f"💬 {comment_info['name']}发表评论内容"},
                 "template": "green"
             },
             "elements": elements
@@ -508,7 +508,7 @@ class session_cookie:
             return
 
     # 动态自评论检测（每页约20条，不翻页）
-    def check_dynamic_self_comment(self, dynamic_id: str, up_mid: str, up_name: str):
+    def check_dynamic_self_comment(self, dynamic_id: str, up_mid: str, up_name: str, com_id: str):
         try:
             url = (
                 f"https://api.bilibili.com/x/v2/reply/main?"
@@ -546,7 +546,7 @@ class session_cookie:
                                 'type_text': '动态评论',
                                 # 'content': content[:150] + ("..." if len(content) > 150 else ""),
                                 'content': content,
-                                'jump_url': f'https://t.bilibili.com/{dynamic_id}#reply{rpid}'
+                                'jump_url': f'https://t.bilibili.com/{com_id}'
                             }
                             send_feishu_self_comment(info)
                             print(f"💬 动态自评论: {up_name} | {content[:30]}...")
@@ -636,10 +636,9 @@ class session_cookie:
                         dynamics.append({
                             'type': 'text', 'name': author_name, 'pub_ts': pub_ts,
                             'title': text[:100] + '...' if len(text) > 100 else text,
-                            # 'dynamic_id': item.get('id_str', ''), 'mid': author_mid
+                            'comment_id': item.get('id_str', ''),
                             'dynamic_id': item.get('basic', {}).get('rid_str', ''), 'mid': author_mid
                         })
-                        print("dynamics:{}".format(dynamics))
                     elif dynamic_type == 'DYNAMIC_TYPE_FORWARD':
                         orig = item.get('orig', {})
                         if not orig:
@@ -656,7 +655,7 @@ class session_cookie:
                                     'title': arc['title'], 'forward_comment': forward_text[:100] + '...' if len(
                                         forward_text) > 100 else forward_text,
                                     'orig_author': orig_name, 'bvid': arc['bvid'],
-                                    # 'dynamic_id': item.get('id_str', ''), 'mid': author_mid
+                                    'comment_id': item.get('id_str', ''),
                                     'dynamic_id': item.get('basic', {}).get('rid_str', ''), 'mid': author_mid
                                 })
                         elif orig_type == 'DYNAMIC_TYPE_DRAW':
@@ -670,7 +669,7 @@ class session_cookie:
                                     'forward_comment': forward_text[:100] + '...' if len(
                                         forward_text) > 100 else forward_text,
                                     'orig_author': orig_name,
-                                    # 'dynamic_id': item.get('id_str', ''), 'mid': author_mid
+                                    'comment_id': item.get('id_str', ''),
                                     'dynamic_id': item.get('basic', {}).get('rid_str', ''), 'mid': author_mid
                                 })
                 except:
@@ -712,12 +711,11 @@ class session_cookie:
 
             # 自评论检测
             for d in dynamics:
-                print(dynamics)
                 try:
                     if d['type'] == 'video':
                         self.check_video_self_comment(d['bvid'], d['mid'], d['name'])
                     elif d['type'] == 'text':
-                        self.check_dynamic_self_comment(d['dynamic_id'], d['mid'], d['name'])
+                        self.check_dynamic_self_comment(d['dynamic_id'], d['mid'], d['name'], d['comment_id'])
                 except:
                     continue
 
