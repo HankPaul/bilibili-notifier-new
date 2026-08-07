@@ -204,7 +204,7 @@ def send_feishu_card(dynamics: list[dict]):
                     "tag": "button",
                     "text": {"tag": "plain_text", "content": "👉 查看完整动态"},
                     "type": "primary",
-                    "url": f"https://t.bilibili.com/{dynamic['dynamic_id']}"
+                    "url": f"https://t.bilibili.com/{dynamic['comment_id']}"
                 }]
             })
         elif dynamic['type'] == 'forward_video':
@@ -221,7 +221,7 @@ def send_feishu_card(dynamics: list[dict]):
                     "tag": "button",
                     "text": {"tag": "plain_text", "content": "👉 查看转发动态"},
                     "type": "primary",
-                    "url": f"https://t.bilibili.com/{dynamic['dynamic_id']}"
+                    "url": f"https://t.bilibili.com/{dynamic['comment_id']}"
                 }]
             })
         elif dynamic['type'] == 'forward_text':
@@ -238,7 +238,7 @@ def send_feishu_card(dynamics: list[dict]):
                     "tag": "button",
                     "text": {"tag": "plain_text", "content": "👉 查看转发动态"},
                     "type": "primary",
-                    "url": f"https://t.bilibili.com/{dynamic['dynamic_id']}"
+                    "url": f"https://t.bilibili.com/{dynamic['comment_id']}"
                 }]
             })
         elements.append({"tag": "hr"})
